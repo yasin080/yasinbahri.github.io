@@ -6,6 +6,6 @@ import { defineConfig } from 'astro/config';
 // - Any other repo name (e.g. "portfolio"): add `base: '/portfolio'`.
 // - Custom domain (e.g. yasinbahri.dev): set `site` to it, no `base`, and add public/CNAME.
 export default defineConfig({
-  site: 'https://yasin080.github.io',
+  site: 'https://yasinbahri.github.io',
   trailingSlash: 'ignore',
 });
