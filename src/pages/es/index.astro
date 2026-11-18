@@ -1,0 +1,9 @@
+---
+import Base from '../../layouts/Base.astro';
+import Home from '../../components/Home.astro';
+import { homeUrl } from '../../lib/site';
+---
+
+<Base lang="es" alternate={homeUrl('en')} isHome>
+  <Home lang="es" />
+</Base>

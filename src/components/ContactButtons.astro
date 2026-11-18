@@ -1,0 +1,14 @@
+---
+import { ui, links, type Lang } from '../i18n/ui';
+import { url } from '../lib/site';
+interface Props { lang: Lang; class?: string }
+const { lang } = Astro.props;
+const t = ui[lang];
+---
+
+<div class:list={['ctas', Astro.props.class]}>
+  <a class="btn btn-primary" href={`mailto:${links.email}`}>{t.btn.email} <span class="ar e" aria-hidden="true">→</span></a>
+  <a class="btn" href={links.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn <span class="ar ne" aria-hidden="true">↗</span></a>
+  <a class="btn" href={links.github} target="_blank" rel="noopener noreferrer">GitHub <span class="ar ne" aria-hidden="true">↗</span></a>
+  <a class="btn" href={url(links.cv[lang])} download hreflang={lang}>{t.btn.cv} <span class="ar s" aria-hidden="true">↓</span></a>
+</div>

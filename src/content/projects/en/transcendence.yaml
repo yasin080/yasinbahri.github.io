@@ -1,0 +1,82 @@
+# transcendence (EN). Inline code goes between backticks.
+title: transcendence
+subtitle: SlitherBomb
+order: 2
+featured: true
+tag: Team of 4 · Final project of the 42 Common Core
+cardTag: Team of 4
+summary: A real-time multiplayer 3D snake game with bombs, bots and spectators.
+description: >-
+  SlitherBomb is an online worm game for up to four players, rendered in 3D in the browser, inside a full web
+  app with accounts, friends, a live lobby and spectators. Every match is defined by its rules: an open board
+  plays like classic Snake; add pillars, random walls and bombs and it turns into a Bomberman-style arena.
+cardTech: React · TypeScript · Babylon.js · Laravel Reverb
+stack:
+  - React 19
+  - TypeScript
+  - Vite
+  - Tailwind CSS
+  - React Router
+  - Babylon.js
+  - Laravel Echo
+  - Laravel 13 (PHP 8.4)
+  - Laravel Reverb (WebSockets)
+  - Sanctum
+  - Socialite (Google OAuth)
+  - MariaDB
+  - Redis
+  - nginx
+  - Docker Compose
+repo: https://github.com/yasin080/transcendence
+media:
+  card:
+    kind: video
+    src: media/transcendence.webm
+    mp4: media/transcendence.mp4
+    poster: media/transcendence-poster.webp
+    alt: 'Screen recording of transcendence: from the lobby into a live match'
+  detail:
+    kind: video
+    src: media/transcendence.webm
+    mp4: media/transcendence.mp4
+    poster: media/transcendence-poster.webp
+    alt: 'Screen recording of transcendence: from the lobby into a live match'
+howItWorks:
+  - >-
+    The server runs every match: a long-running Laravel command (`game:tick`) applies the players’ inputs and
+    the bots’ moves and broadcasts the new state over WebSockets (Laravel Reverb). Clients only send their
+    moves.
+  - >-
+    Live match state is kept in Redis; only durable data (rooms, seats, when each match started and ended) is
+    stored in MariaDB.
+  - >-
+    Babylon.js renders the board with three cameras, real-time shadows and post-processing. Worms glide
+    between ticks by interpolating their positions every frame; touch controls on mobile.
+  - >-
+    Four presets (Classic, Arena, Maze, Hardcore) or custom rules: board size, speed, food, bombs that blast a
+    3×3 area, pillars, random walls, and whether hitting a wall kills or blocks.
+  - >-
+    Bots play on the server like any other player: they look one cell ahead and head for food or bombs, with a
+    mistake rate set by the host.
+  - >-
+    Disconnections: after 2.5 s without a ping a worm goes “away”, and the player has 10 s to come back.
+    Players who give up their seat can keep watching the match.
+  - >-
+    Email/password (Sanctum) and Google sign-in (Socialite), profiles, avatars and friends with live online
+    status.
+  - >-
+    One command starts the whole Docker Compose stack behind nginx (HTTPS), with a live /health page and a
+    database dump every 6 hours that can be restored.
+decisions:
+  - >-
+    Server-authoritative game loop: it keeps every player in sync, prevents cheating from the browser and lets
+    bots play exactly like humans.
+  - >-
+    Redis for live matches: a match changes state several times per second, so writing every tick to the
+    database was not an option.
+  - >-
+    Shared types: the TypeScript client mirrors the game state sent by the server, so mismatches are caught at
+    compile time.
+  - >-
+    Teamwork: every change went through its own branch and a reviewed pull request, with weekly remote
+    meetings to set the next goals.

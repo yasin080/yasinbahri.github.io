@@ -1,0 +1,13 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ProjectPage from '../../../components/ProjectPage.astro';
+import { projectPaths } from '../../../lib/projectPaths';
+import { projectUrl } from '../../../lib/site';
+
+export const getStaticPaths = () => projectPaths('es');
+const { project, prev, next, index, total } = Astro.props;
+---
+
+<Base lang="es" alternate={projectUrl('en', project.slug)} title={project.data.title} description={project.data.summary}>
+  <ProjectPage lang="es" {project} {prev} {next} {index} {total} />
+</Base>

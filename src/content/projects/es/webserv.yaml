@@ -1,0 +1,47 @@
+# webserv (ES). Inline code goes between backticks.
+title: webserv
+order: 3
+featured: false
+tag: Equipo de 3
+cardTag: Equipo de 3
+summary: Un servidor HTTP/1.1 escrito desde cero en C++98.
+description: >-
+  Un servidor HTTP/1.1 de un solo proceso y orientado a eventos, construido desde la capa de sockets y sin
+  librerías HTTP. Convierte un flujo de bytes TCP en peticiones, las resuelve según un archivo de
+  configuración inspirado en NGINX y devuelve respuestas que cumplen la especificación.
+cardTech: C++98 · POSIX sockets · poll() · Make
+stack:
+  - C++98
+  - POSIX sockets
+  - poll()
+  - Make
+repo: https://github.com/yasin080/Webserv
+howItWorks:
+  - >-
+    Un único bucle `poll()` multiplexa los sockets de escucha, las conexiones de clientes y los pipes de CGI.
+    Cada conexión es una máquina de estados no bloqueante: sin hilos y sin un `fork` por conexión.
+  - >-
+    Configuración con bloques `server` y `location` (`root`, `index`, `autoindex`, `client_max_body_size`,
+    `allow_methods`, `return`, páginas de error, `cgi`, subidas). Varios virtual hosts pueden compartir puerto
+    y se resuelven por la cabecera `Host`.
+  - >-
+    GET, HEAD, POST y DELETE: archivos estáticos, listado de directorios, subida de archivos, redirecciones y
+    páginas de error personalizadas.
+  - >-
+    Scripts CGI ejecutados con `fork`/`execve` y dos pipes, cuyos descriptores entran en el mismo bucle
+    `poll()`, con timeout.
+  - Transfer-encoding chunked en peticiones y respuestas, conexiones keep-alive y timeouts por inactividad.
+  - >-
+    Pruebas de carga con siege: bajo carga concurrente ninguna conexión puede ser rechazada ni quedarse
+    colgada.
+decisions:
+  - >-
+    HTTP/1.1 en lugar del mínimo de 1.0: keep-alive, chunked, cabecera `Host` obligatoria (400 si falta) y
+    `Transfer-Encoding` por delante de `Content-Length`, como dice el RFC 7230.
+  - 'Un alcance documentado: `Expect: 100-continue` y las peticiones `Range` quedan fuera a propósito.'
+  - >-
+    CGI que nunca bloquea el servidor: los extremos de pipe que no se usan se cierran justo después del `fork`
+    para que siempre llegue el EOF, y los pipes se vigilan como cualquier socket.
+  - >-
+    Reglas estrictas: C++98, un solo proceso y una lista cerrada de llamadas al sistema permitidas, lo que
+    obliga a un modelo correcto y de bajo nivel de sockets y procesos.

@@ -1,0 +1,35 @@
+# minishell (EN). Inline code goes between backticks.
+title: minishell
+order: 4
+featured: false
+tag: Solo project
+cardTag: Solo
+summary: A small Bash-like shell in C.
+description: >-
+  A shell that reads a line with readline, splits it into tokens, expands variables, sets up pipes and
+  redirections and runs the commands with `fork` and `execve`. The goal is to understand how a shell creates
+  and synchronises processes.
+cardTech: C · POSIX · GNU readline
+stack:
+  - C
+  - POSIX (fork, execve, pipe, dup2, signals)
+  - GNU readline
+repo: https://github.com/yasin080/minishell
+howItWorks:
+  - >-
+    Lexer, syntax check and parser: one command per pipe segment, with its arguments and redirections.
+    Unclosed quotes and cases like `| ls` or `echo >` are syntax errors.
+  - >-
+    Pipes, redirections (`<`, `>`, `>>`) anywhere in the command and heredoc (`<<`), with `$VAR` expansion
+    unless the delimiter is quoted.
+  - Single and double quotes, `$VAR` and `$?` expansion and word splitting of unquoted expansions, like Bash.
+  - 'Builtins: `echo -n`, `cd` (including `cd -`), `pwd`, `export`, `unset`, `env`, `exit`.'
+  - >-
+    Bash exit codes (127, 126, 2, 128 + signal) and signals: Ctrl-C, Ctrl-D and Ctrl-\ behave as in Bash, at
+    the prompt and inside a running command.
+decisions:
+  - >-
+    A lone builtin runs in the shell process, so `cd` and `export` change the shell itself; everything else
+    runs in child processes connected with pipes.
+  - Heredocs are read before anything runs and stored in a temporary file that is unlinked right away.
+  - 'A clear scope: `&&`, `||`, `;`, wildcards and subshells are left out, as in the subject’s mandatory part.'

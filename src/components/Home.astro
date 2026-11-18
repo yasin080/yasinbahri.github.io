@@ -1,0 +1,170 @@
+---
+import { ui, links, type Lang } from '../i18n/ui';
+import { getProjects, projectUrl, url } from '../lib/site';
+import ContactButtons from './ContactButtons.astro';
+import Media from './Media.astro';
+
+interface Props { lang: Lang }
+const { lang } = Astro.props;
+const t = ui[lang];
+const projects = await getProjects(lang);
+---
+
+<section class="hero wrap" aria-labelledby="hero-title">
+  <div class="hero-par">
+    <p class="prompt in"><b>$</b> whoami</p>
+    <h1 id="hero-title" class="h1 in d1">Yasin Bahri <span class="role">{t.role}<span class="caret" aria-hidden="true">_</span></span></h1>
+  </div>
+  <div class="hero-grid">
+    <p class="lede in d2">{t.ledeA}<a class="lnk" href={projectUrl(lang, 'revisatualquiler')}>revisatualquiler.es</a>{t.ledeB}</p>
+    <dl class="spec in d3">
+      <div><dt>{t.spec.role}</dt><dd>{t.role}</dd></div>
+      <div><dt>{t.spec.loc}</dt><dd>Bilbao</dd></div>
+      <div><dt>{t.spec.edu}</dt><dd>{t.spec.eduVal}</dd></div>
+      <div><dt>{t.spec.status}</dt><dd><span class="on">{t.spec.statusVal}</span></dd></div>
+    </dl>
+  </div>
+  <ContactButtons lang={lang} class="in d4" />
+</section>
+
+<section id="learn" class="sec" aria-labelledby="learn-h">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label"><b>01</b> / {t.lbl.learn}</p>
+      <h2 id="learn-h" class="h2">{t.h.learn}</h2>
+    </div>
+    <div class="f42 indent">
+      <div class="rank rv">
+        <p class="big" aria-hidden="true">3<sup>{t.rankSup}</sup></p>
+        <p class="cap">{t.rankCap}</p>
+        <a class="lnk" href={links.ranking} target="_blank" rel="noopener noreferrer">{t.rankLink} ↗</a>
+      </div>
+      <div class="prose rv">
+        <p>{t.learn1}</p>
+        <div class="means">
+          <h3>{t.meansTitle}</h3>
+          <ul>
+            {t.means.map((m) => <li><span><b style="font-weight: 600">{m.h}</b> — {m.p}</span></li>)}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="work" class="sec" aria-labelledby="work-h">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label"><b>02</b> / {t.lbl.work}</p>
+      <h2 id="work-h" class="h2">{t.h.work}</h2>
+    </div>
+    <div class="grid">
+      {projects.map((p) => (
+        <a class:list={['card', 'rv', p.data.featured ? 'wide' : 'text']} href={projectUrl(lang, p.slug)} aria-label={`${t.openAria}: ${p.data.title}`}>
+          {p.data.featured && p.data.media?.card && (
+            <span class="media"><Media media={p.data.media.card} lang={lang} /></span>
+          )}
+          <span class="body">
+            <span class="top"><span class="tag neutral">{p.data.cardTag}</span></span>
+            <span class="h3">{p.data.title}{p.data.subtitle && <small>{p.data.subtitle}</small>}</span>
+            <span class="one">{p.data.summary}</span>
+            <span class="tech">{p.data.cardTech}</span>
+            <span class="cta">{t.moreDetails} <span class="ar" aria-hidden="true">→</span></span>
+          </span>
+        </a>
+      ))}
+    </div>
+
+    <div class="mini rv">
+      <h3 class="mini-h">{t.moreTitle}</h3>
+      {t.small.map((m) => (
+        <div class="mini-row">
+          <span class="nm">{m.name}</span>
+          <p>{m.text}</p>
+          <a href={m.repo} target="_blank" rel="noopener noreferrer" aria-label={`${m.name} — GitHub`}>repo ↗</a>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section id="tools" class="sec" aria-labelledby="tools-h">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label"><b>03</b> / {t.lbl.tools}</p>
+      <h2 id="tools-h" class="h2">{t.h.tools}</h2>
+    </div>
+    <div class="rows rv">
+      {t.tools.map((g) => (
+        <div class="row trow">
+          <span class="k">{g.label}</span>
+          <ul class="tchips">
+            {g.items.map((i) => (
+              i.icon
+                ? <li class="tchip"><span class="ti"><img src={url(`icons/${i.icon}.svg`)} alt="" width="18" height="18" loading="lazy" /></span>{i.name}</li>
+                : <li class="tchip noi">{i.name}</li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<section id="experience" class="sec" aria-labelledby="exp-h">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label"><b>04</b> / {t.lbl.exp}</p>
+      <h2 id="exp-h" class="h2">{t.h.exp}</h2>
+    </div>
+    <div class="tl">
+      <div class="grp-block rv">
+        <h3 class="grp indent">{t.eduTitle}</h3>
+        <div class="rows">
+          {t.edu.map((e) => (
+            <div class="row"><span class="k">{e.when}</span><div><p class="t">{e.title}</p><p class="o">{e.org}</p>{e.desc && <p class="d">{e.desc}</p>}</div></div>
+          ))}
+        </div>
+      </div>
+      <div class="grp-block rv">
+        <h3 class="grp indent">{t.workTitle}</h3>
+        <p class="grp-intro indent">{t.workIntro}</p>
+        <div class="rows">
+          {t.work.map((e) => (
+            <div class="row"><span class="k">{e.when}</span><div><p class="t">{e.title}</p><p class="o">{e.org}</p><p class="d">{e.desc}</p></div></div>
+          ))}
+        </div>
+      </div>
+      <div class="grp-block rv">
+        <div class="rows">
+          <div class="row"><span class="k">{t.langsLabel}</span><span class="v">{t.langs}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about" class="sec" aria-labelledby="about-h">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label"><b>05</b> / {t.lbl.about}</p>
+      <h2 id="about-h" class="h2">{t.h.about}</h2>
+    </div>
+    <div class="indent rv">
+      <p class="about-text">{t.about}</p>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="contact" aria-labelledby="contact-h">
+  <div class="wrap">
+    <p class="label rv"><b>06</b> / {t.lbl.contact}</p>
+    <h2 id="contact-h" class="h2 rv" style="margin-top: 20px">{t.contactTitle}</h2>
+    <p class="cta-text rv">{t.contactText}</p>
+    <ContactButtons lang={lang} class="rv" />
+    <div class="copy rv">
+      <span class="addr">{links.email}</span>
+      <button type="button" data-copy={links.email} data-label={t.copy} data-done={t.copied} aria-live="polite">{t.copy}</button>
+    </div>
+  </div>
+</section>

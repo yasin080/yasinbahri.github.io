@@ -1,0 +1,71 @@
+---
+import { ui, type Lang } from '../i18n/ui';
+import { homeUrl, projectUrl, inline, pad, type Project } from '../lib/site';
+import Media from './Media.astro';
+
+interface Props { lang: Lang; project: Project; prev: Project; next: Project; index: number; total: number }
+const { lang, project, prev, next, index, total } = Astro.props;
+const t = ui[lang];
+const d = project.data;
+const crumb = project.slug === 'revisatualquiler' ? 'revisatualquiler.es' : project.slug;
+const detailMedia = d.featured ? d.media?.detail : undefined;
+---
+
+<article class="wrap dt-top" aria-labelledby="dt-title">
+  <a class="back in" href={`${homeUrl(lang)}#work`}><span class="ar" aria-hidden="true">←</span> {t.allProjects}</a>
+  <p class="crumb in d1">~/projects/<b>{crumb}</b> <span style="float: right">{pad(index + 1)} / {pad(total)}</span></p>
+  <h1 id="dt-title" class="dt-title in d1">{d.title}</h1>
+  {d.subtitle && <span class="dt-sub in d1">{d.subtitle}</span>}
+  <p class="dt-lede in d2">{d.summary}</p>
+  <div class="dt-meta in d3">
+    <span class="tag">{d.tag}</span>
+    {d.tagNote && <span class="tag neutral">{d.tagNote}</span>}
+    {d.live && <a class="btn" href={d.live} target="_blank" rel="noopener noreferrer">{t.liveSite} <span class="ar ne" aria-hidden="true">↗</span></a>}
+    {d.repo && <a class="btn" href={d.repo} target="_blank" rel="noopener noreferrer">{t.repository} <span class="ar ne" aria-hidden="true">↗</span></a>}
+  </div>
+
+  {detailMedia && (
+    <div class="dt-media in d4"><Media media={detailMedia} lang={lang} eager /></div>
+  )}
+
+  <div class="dt-body">
+    <aside class="dt-aside rv">
+      <div>
+        <h2>Stack</h2>
+        <ul>{d.stack.map((s) => <li>{s}</li>)}</ul>
+      </div>
+      <div>
+        <h2>{t.links}</h2>
+        <ul>
+          {d.live && <li><a href={d.live} target="_blank" rel="noopener noreferrer">{t.liveSite} <span aria-hidden="true">↗</span></a></li>}
+          {d.repo ? <li><a href={d.repo} target="_blank" rel="noopener noreferrer">{t.repository} <span aria-hidden="true">↗</span></a></li> : <li>{t.repoPrivate}</li>}
+        </ul>
+      </div>
+    </aside>
+    <div class="dt-main">
+      <section class="rv">
+        <h2>{t.whatItIs}</h2>
+        <p class="what" set:html={inline(d.description)} />
+      </section>
+      <section class="rv">
+        <h2>{t.howItWorks}</h2>
+        <ol class="how">
+          {d.howItWorks.map((h, i) => <li><span class="n">{pad(i + 1)}</span><span set:html={inline(h)} /></li>)}
+        </ol>
+      </section>
+      {d.decisions.length > 0 && (
+        <section class="rv">
+          <h2>{t.challenges}</h2>
+          <ol class="how">
+            {d.decisions.map((h, i) => <li><span class="n">{pad(i + 1)}</span><span set:html={inline(h)} /></li>)}
+          </ol>
+        </section>
+      )}
+    </div>
+  </div>
+
+  <nav class="dt-next" aria-label={t.moreProjects}>
+    <a href={projectUrl(lang, prev.slug)}><span class="k">← {t.prev}</span><span class="t">{prev.data.title}</span></a>
+    <a href={projectUrl(lang, next.slug)}><span class="k">{t.next} →</span><span class="t">{next.data.title}</span></a>
+  </nav>
+</article>

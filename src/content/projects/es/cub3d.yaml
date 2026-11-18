@@ -1,0 +1,38 @@
+# cub3d (ES). Inline code goes between backticks.
+title: cub3d
+order: 6
+featured: false
+tag: Equipo de 2
+cardTag: Equipo de 2
+summary: Un raycaster al estilo Wolfenstein en C.
+description: >-
+  Una vista en primera persona de un laberinto al estilo de Wolfenstein 3D: lee un mapa `.cub` y lo renderiza
+  en tiempo real con miniLibX. Un primer contacto con la programación gráfica, las matemáticas del raycasting
+  y la gestión de eventos.
+cardTech: C · miniLibX (X11) · math library
+stack:
+  - C
+  - miniLibX (X11)
+  - math library
+repo: https://github.com/yasin080/Cub3d
+howItWorks:
+  - >-
+    Raycasting DDA: para cada columna de la pantalla se avanza un rayo casilla a casilla hasta chocar con una
+    pared; la distancia perpendicular da la altura de esa franja de pared.
+  - >-
+    Paredes con una textura distinta en cada cara, tomada del punto donde impacta el rayo. Las paredes
+    alcanzadas por su cara Y se dibujan más oscuras para dar profundidad.
+  - >-
+    El movimiento comprueba X e Y por separado contra el mapa, así que el jugador se desliza por las paredes
+    en vez de quedarse parado.
+  - >-
+    Parser estricto de `.cub` para texturas, colores de suelo y techo y un mapa cerrado por paredes,
+    comprobado con 16 mapas válidos y 31 inválidos.
+  - Minimapa y rotación con el ratón (bonus).
+decisions:
+  - >-
+    La altura de la pared se calcula con la distancia perpendicular, no con la longitud real del rayo, lo que
+    evita la distorsión de ojo de pez.
+  - >-
+    El parser rellena el mapa hasta formar un rectángulo y después comprueba que ninguna casilla de suelo
+    toque un espacio o el borde, lo que también detecta huecos alrededor de los espacios interiores.

@@ -1,0 +1,84 @@
+# transcendence (ES). Inline code goes between backticks.
+title: transcendence
+subtitle: SlitherBomb
+order: 2
+featured: true
+tag: Equipo de 4 · Proyecto final del Common Core de 42
+cardTag: Equipo de 4
+summary: Un juego de la serpiente 3D multijugador en tiempo real, con bombas, bots y espectadores.
+description: >-
+  SlitherBomb es un juego online de gusanos para hasta cuatro jugadores, renderizado en 3D en el navegador,
+  dentro de una aplicación web completa con cuentas, amigos, lobby en directo y espectadores. Cada partida se
+  define por sus reglas: un tablero abierto se juega como el Snake clásico; con pilares, muros aleatorios y
+  bombas se convierte en una arena al estilo Bomberman.
+cardTech: React · TypeScript · Babylon.js · Laravel Reverb
+stack:
+  - React 19
+  - TypeScript
+  - Vite
+  - Tailwind CSS
+  - React Router
+  - Babylon.js
+  - Laravel Echo
+  - Laravel 13 (PHP 8.4)
+  - Laravel Reverb (WebSockets)
+  - Sanctum
+  - Socialite (Google OAuth)
+  - MariaDB
+  - Redis
+  - nginx
+  - Docker Compose
+repo: https://github.com/yasin080/transcendence
+media:
+  card:
+    kind: video
+    src: media/transcendence.webm
+    mp4: media/transcendence.mp4
+    poster: media/transcendence-poster.webp
+    alt: 'Grabación de transcendence: del lobby a una partida en directo'
+  detail:
+    kind: video
+    src: media/transcendence.webm
+    mp4: media/transcendence.mp4
+    poster: media/transcendence-poster.webp
+    alt: 'Grabación de transcendence: del lobby a una partida en directo'
+howItWorks:
+  - >-
+    El servidor ejecuta cada partida: un comando de Laravel de larga duración (`game:tick`) aplica los
+    movimientos de los jugadores y de los bots y emite el nuevo estado por WebSockets (Laravel Reverb). Los
+    clientes solo envían sus movimientos.
+  - >-
+    El estado de las partidas en curso vive en Redis; en MariaDB solo se guardan los datos duraderos (salas,
+    asientos, inicio y fin de cada partida).
+  - >-
+    Babylon.js renderiza el tablero con tres cámaras, sombras en tiempo real y postprocesado. Los gusanos se
+    deslizan entre ticks interpolando su posición en cada fotograma; controles táctiles en móvil.
+  - >-
+    Cuatro modos predefinidos (Classic, Arena, Maze, Hardcore) o reglas a medida: tamaño del tablero,
+    velocidad, comida, bombas que arrasan un área de 3×3, pilares, muros aleatorios y si chocar con un muro
+    mata o bloquea.
+  - >-
+    Los bots juegan en el servidor como un jugador más: miran una casilla por delante y van a por comida o
+    bombas, con una tasa de errores que elige el anfitrión.
+  - >-
+    Desconexiones: tras 2,5 s sin ping el gusano queda “ausente” y el jugador tiene 10 s para volver. Quien
+    abandona su asiento puede seguir viendo la partida.
+  - >-
+    Registro con email/contraseña (Sanctum) y con Google (Socialite), perfiles, avatares y amigos con estado
+    en línea en directo.
+  - >-
+    Un solo comando arranca todo el stack de Docker Compose detrás de nginx (HTTPS), con una página /health en
+    directo y una copia de la base de datos cada 6 horas que se puede restaurar.
+decisions:
+  - >-
+    Bucle de juego en el servidor: mantiene a todos los jugadores sincronizados, impide hacer trampas desde el
+    navegador y permite que los bots jueguen exactamente igual que las personas.
+  - >-
+    Redis para las partidas en curso: una partida cambia de estado varias veces por segundo, así que escribir
+    cada tick en la base de datos no era una opción.
+  - >-
+    Tipos compartidos: el cliente en TypeScript replica el estado de juego que envía el servidor, así que los
+    desajustes se detectan al compilar.
+  - >-
+    Trabajo en equipo: cada cambio pasó por su propia rama y un pull request revisado, con reuniones semanales
+    en remoto para fijar los siguientes objetivos.

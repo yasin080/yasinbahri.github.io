@@ -1,0 +1,146 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { ui, type Lang } from '../i18n/ui';
+import { url } from '../lib/site';
+
+interface Props {
+  lang: Lang;
+  /** Path of this same page in the other language (already including the base). */
+  alternate: string;
+  title?: string;
+  description?: string;
+  /** Home page: the header hides the name until the hero title scrolls away. */
+  isHome?: boolean;
+}
+
+const { lang, alternate, title, description, isHome = false } = Astro.props;
+const t = ui[lang];
+const pageTitle = title ? `${title} · Yasin Bahri` : t.meta.title;
+const pageDescription = description ?? t.meta.description;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const other: Lang = lang === 'en' ? 'es' : 'en';
+const alternateAbs = new URL(alternate, Astro.site);
+---
+
+<!doctype html>
+<html lang={lang} class="theme-light motion">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={lang} href={canonical} />
+    <link rel="alternate" hreflang={other} href={alternateAbs} />
+    <link rel="icon" href={url('favicon.svg')} type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={lang === 'en' ? 'en_GB' : 'es_ES'} />
+    <meta name="color-scheme" content="light dark" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+    />
+
+    <!-- Theme before first paint: saved choice, else the system setting. -->
+    <script is:inline>
+      (function () {
+        var saved = null;
+        try { saved = localStorage.getItem('theme'); } catch (e) {}
+        var dark = saved ? saved === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var c = document.documentElement.classList;
+        c.toggle('theme-dark', dark);
+        c.toggle('theme-light', !dark);
+      })();
+    </script>
+    <ClientRouter />
+  </head>
+  <body class="site" id="top">
+    <a class="skip" href="#main">{t.skip}</a>
+    <div class="progress" aria-hidden="true"></div>
+    <Header lang={lang} alternate={alternate} isHome={isHome} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer lang={lang} />
+
+    <script>
+      // Runs on first load and after every page change made by the ClientRouter.
+      function applyTheme(theme: string) {
+        const c = document.documentElement.classList;
+        c.toggle('theme-dark', theme === 'dark');
+        c.toggle('theme-light', theme !== 'dark');
+      }
+      function currentTheme() {
+        let saved: string | null = null;
+        try { saved = localStorage.getItem('theme'); } catch {}
+        if (saved) return saved;
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      // The new page arrives with the default classes: restore the theme before it paints.
+      document.addEventListener('astro:after-swap', () => applyTheme(currentTheme()));
+
+      let heroObserver: IntersectionObserver | null = null;
+
+      document.addEventListener('astro:page-load', () => {
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Theme toggle
+        const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+        const syncLabel = () => {
+          if (!toggle) return;
+          const dark = document.documentElement.classList.contains('theme-dark');
+          toggle.setAttribute('aria-label', dark ? toggle.dataset.toLight! : toggle.dataset.toDark!);
+        };
+        syncLabel();
+        toggle?.addEventListener('click', () => {
+          const next = document.documentElement.classList.contains('theme-dark') ? 'light' : 'dark';
+          try { localStorage.setItem('theme', next); } catch {}
+          applyTheme(next);
+          syncLabel();
+        });
+
+        // Header name: hidden while the hero title is on screen, slides in after it.
+        heroObserver?.disconnect();
+        const header = document.querySelector('.hdr');
+        const heroTitle = document.getElementById('hero-title');
+        if (header && heroTitle && 'IntersectionObserver' in window) {
+          heroObserver = new IntersectionObserver(
+            ([entry]) => {
+              const past = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+              header.classList.toggle('brand-on', past);
+            },
+            { rootMargin: '-64px 0px 0px 0px', threshold: 0 },
+          );
+          heroObserver.observe(heroTitle);
+        }
+
+        // Copy email
+        document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+          btn.addEventListener('click', async () => {
+            try {
+              await navigator.clipboard.writeText(btn.dataset.copy!);
+              btn.textContent = btn.dataset.done!;
+              btn.classList.add('ok');
+              setTimeout(() => {
+                btn.textContent = btn.dataset.label!;
+                btn.classList.remove('ok');
+              }, 1800);
+            } catch {}
+          });
+        });
+
+        // Videos: no autoplay for people who asked for reduced motion.
+        if (reduced) document.querySelectorAll('video[autoplay]').forEach((v) => (v as HTMLVideoElement).pause());
+      });
+    </script>
+  </body>
+</html>

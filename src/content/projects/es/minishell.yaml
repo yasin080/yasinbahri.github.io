@@ -1,0 +1,41 @@
+# minishell (ES). Inline code goes between backticks.
+title: minishell
+order: 4
+featured: false
+tag: Proyecto individual
+cardTag: Individual
+summary: Una pequeña shell tipo Bash en C.
+description: >-
+  Una shell que lee una línea con readline, la divide en tokens, expande variables, prepara pipes y
+  redirecciones y ejecuta los comandos con `fork` y `execve`. El objetivo es entender cómo una shell crea y
+  sincroniza procesos.
+cardTech: C · POSIX · GNU readline
+stack:
+  - C
+  - POSIX (fork, execve, pipe, dup2, signals)
+  - GNU readline
+repo: https://github.com/yasin080/minishell
+howItWorks:
+  - >-
+    Lexer, comprobación de sintaxis y parser: un comando por cada tramo del pipe, con sus argumentos y
+    redirecciones. Las comillas sin cerrar y casos como `| ls` o `echo >` son errores de sintaxis.
+  - >-
+    Pipes, redirecciones (`<`, `>`, `>>`) en cualquier posición del comando y heredoc (`<<`), con expansión de
+    `$VAR` salvo que el delimitador vaya entre comillas.
+  - >-
+    Comillas simples y dobles, expansión de `$VAR` y `$?` y separación en palabras de las expansiones sin
+    comillas, como en Bash.
+  - 'Builtins: `echo -n`, `cd` (incluido `cd -`), `pwd`, `export`, `unset`, `env`, `exit`.'
+  - >-
+    Códigos de salida de Bash (127, 126, 2, 128 + señal) y señales: Ctrl-C, Ctrl-D y Ctrl-\ se comportan como
+    en Bash, en el prompt y dentro de un comando en ejecución.
+decisions:
+  - >-
+    Un builtin solo se ejecuta en el proceso de la shell, para que `cd` y `export` cambien la propia shell;
+    todo lo demás se ejecuta en procesos hijos conectados con pipes.
+  - >-
+    Los heredocs se leen antes de ejecutar nada y se guardan en un archivo temporal que se desvincula al
+    momento.
+  - >-
+    Un alcance claro: `&&`, `||`, `;`, comodines y subshells quedan fuera, como en la parte obligatoria del
+    enunciado.

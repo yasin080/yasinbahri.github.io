@@ -1,0 +1,44 @@
+---
+import { url } from '../lib/site';
+import { ui, type Lang } from '../i18n/ui';
+
+type M =
+  | { kind: 'image'; src: string; alt: string; width?: number; height?: number }
+  | { kind: 'video'; src: string; mp4?: string; poster?: string; alt: string }
+  | { kind: 'placeholder'; caption?: string }
+  | { kind: 'document'; pdf: string; pages: { src: string; alt: string }[]; note: string; cta: string };
+interface Props { media: M; lang: Lang; eager?: boolean }
+const { media, lang, eager = false } = Astro.props;
+const t = ui[lang];
+---
+
+{media.kind === 'image' && (
+  <img src={url(media.src)} alt={media.alt} width={media.width} height={media.height} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+)}
+{media.kind === 'video' && (
+  <video autoplay muted loop playsinline preload="metadata" poster={media.poster && url(media.poster)} aria-label={media.alt}>
+    <source src={url(media.src)} type="video/webm" />
+    {media.mp4 && <source src={url(media.mp4)} type="video/mp4" />}
+  </video>
+)}
+{media.kind === 'placeholder' && (
+  <div class="ph" role="img" aria-label={media.caption}>
+    <span class="k">{t.placeholder}</span>
+    <span class="c">{media.caption}</span>
+  </div>
+)}
+{media.kind === 'document' && (
+  <figure class="doc">
+    <div class="doc-pages" style={`--n: ${media.pages.length}`}>
+      {media.pages.map((pg) => (
+        <a href={url(media.pdf)} target="_blank" rel="noopener">
+          <img src={url(pg.src)} alt={pg.alt} width="910" height="1287" loading={eager ? 'eager' : 'lazy'} decoding="async" />
+        </a>
+      ))}
+    </div>
+    <figcaption>
+      <span>{media.note}</span>
+      <a class="btn" href={url(media.pdf)} target="_blank" rel="noopener">{media.cta} <span class="ar ne" aria-hidden="true">↗</span></a>
+    </figcaption>
+  </figure>
+)}

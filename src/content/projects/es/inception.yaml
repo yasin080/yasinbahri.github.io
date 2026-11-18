@@ -1,0 +1,48 @@
+# Inception (ES). Inline code goes between backticks.
+title: Inception
+order: 5
+featured: false
+tag: Proyecto individual
+cardTag: Individual
+summary: Una pequeña infraestructura web con Docker Compose, construida con mis propios Dockerfiles.
+description: >-
+  Un sitio WordPress servido por HTTPS desde una máquina virtual, dividido en tres servicios, cada uno en su
+  propio contenedor construido con mis propios Dockerfiles y orquestado con Docker Compose. Una introducción a
+  la administración de sistemas con Docker.
+cardTech: Docker · Docker Compose · NGINX · MariaDB
+stack:
+  - Docker
+  - Docker Compose
+  - NGINX
+  - WordPress
+  - WP-CLI
+  - php-fpm
+  - MariaDB
+  - OpenSSL
+  - Bash
+repo: https://github.com/yasin080/Inception
+howItWorks:
+  - >-
+    NGINX es el único punto de entrada, en el puerto 443 con TLS 1.2/1.3 y un certificado autofirmado generado
+    con openssl al construir la imagen. Las peticiones PHP pasan a WordPress por FastCGI.
+  - >-
+    WordPress ejecuta php-fpm sin servidor web propio. Se instala y configura con WP-CLI en el primer
+    arranque, y el script de instalación se puede volver a ejecutar sin romper nada.
+  - MariaDB guarda el contenido; WordPress espera a que esté lista con `mysqladmin ping` antes de instalarse.
+  - >-
+    Imágenes construidas desde `debian:bookworm`. Contraseñas como Docker secrets, configuración no sensible
+    en `.env`, datos en volúmenes con nombre en el host y contenedores en una red privada.
+  - >-
+    Cada servicio se ejecuta en primer plano como PID 1 y se reinicia solo tras un fallo; sin `tail -f` ni
+    bucles con sleep.
+decisions:
+  - >-
+    `exec` al final de cada script de arranque, para que el servicio real sea el PID 1 y reciba correctamente
+    la señal de `docker stop`.
+  - >-
+    Docker secrets en lugar de variables de entorno para las contraseñas: las variables de entorno aparecen en
+    `docker inspect` y en los logs, mientras que los secrets se montan como archivos solo en los contenedores
+    que los necesitan.
+  - >-
+    php-fpm separado de NGINX: cada contenedor hace una sola cosa, y ambos comparten los archivos de WordPress
+    a través de un volumen.

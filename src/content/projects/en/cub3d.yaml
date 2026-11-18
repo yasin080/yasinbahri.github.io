@@ -1,0 +1,36 @@
+# cub3d (EN). Inline code goes between backticks.
+title: cub3d
+order: 6
+featured: false
+tag: Team of 2
+cardTag: Team of 2
+summary: A Wolfenstein-style raycaster in C.
+description: >-
+  A first-person view of a maze in the style of Wolfenstein 3D: it reads a `.cub` map and renders it in real
+  time with miniLibX. A first contact with graphics programming, the maths behind raycasting and event
+  handling.
+cardTech: C · miniLibX (X11) · math library
+stack:
+  - C
+  - miniLibX (X11)
+  - math library
+repo: https://github.com/yasin080/Cub3d
+howItWorks:
+  - >-
+    DDA raycasting: for every screen column a ray is stepped cell by cell until it hits a wall; the
+    perpendicular distance gives the height of the wall slice.
+  - >-
+    Textured walls, a different texture per side, sampled from where the ray hit. Walls hit on a Y side are
+    drawn darker to give depth.
+  - Movement checks X and Y separately against the map, so the player slides along walls instead of stopping.
+  - >-
+    Strict `.cub` parser for textures, floor and ceiling colours and a map closed by walls, checked against 16
+    valid and 31 invalid test maps.
+  - Minimap and mouse rotation (bonus).
+decisions:
+  - >-
+    The perpendicular distance, not the raw length of the ray, sets the wall height, which avoids the fisheye
+    distortion.
+  - >-
+    The parser pads the map to a rectangle and then checks that no floor cell touches a space or the border,
+    which also catches gaps around inner spaces.

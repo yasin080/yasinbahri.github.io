@@ -1,0 +1,47 @@
+# webserv (EN). Inline code goes between backticks.
+title: webserv
+order: 3
+featured: false
+tag: Team of 3
+cardTag: Team of 3
+summary: An HTTP/1.1 server written from scratch in C++98.
+description: >-
+  A single-process, event-driven HTTP/1.1 server built from the socket layer up, with no HTTP libraries. It
+  turns a raw TCP byte stream into requests, resolves them against an NGINX-inspired configuration file and
+  sends back spec-compliant responses.
+cardTech: C++98 · POSIX sockets · poll() · Make
+stack:
+  - C++98
+  - POSIX sockets
+  - poll()
+  - Make
+repo: https://github.com/yasin080/Webserv
+howItWorks:
+  - >-
+    One `poll()` loop multiplexes listening sockets, client connections and CGI pipes. Each connection is a
+    non-blocking state machine: no threads and no `fork` per connection.
+  - >-
+    Configuration with `server` and `location` blocks (`root`, `index`, `autoindex`, `client_max_body_size`,
+    `allow_methods`, `return`, error pages, `cgi`, uploads). Several virtual hosts can share a port, resolved
+    by the `Host` header.
+  - >-
+    GET, HEAD, POST and DELETE: static files, directory listings, file uploads, redirects and custom error
+    pages.
+  - >-
+    CGI scripts run with `fork`/`execve` and two pipes, whose file descriptors join the same `poll()` loop,
+    with a timeout.
+  - >-
+    Chunked transfer encoding for request bodies and responses, keep-alive connections and inactivity
+    timeouts.
+  - 'Stress-tested with siege: under concurrent load no connection may be refused or left hanging.'
+decisions:
+  - >-
+    HTTP/1.1 instead of the 1.0 minimum: keep-alive, chunked encoding, a mandatory `Host` header (400 without
+    it) and `Transfer-Encoding` taking precedence over `Content-Length`, as RFC 7230 says.
+  - 'A documented scope: `Expect: 100-continue` and `Range` requests are left out on purpose.'
+  - >-
+    CGI that never blocks the server: unused pipe ends are closed right after `fork` so EOF always arrives,
+    and the pipes are polled like any socket.
+  - >-
+    Strict rules: C++98, a single process and a restricted list of allowed system calls, which forces a
+    correct low-level model of sockets and processes.

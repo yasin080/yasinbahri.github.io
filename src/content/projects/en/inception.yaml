@@ -1,0 +1,47 @@
+# Inception (EN). Inline code goes between backticks.
+title: Inception
+order: 5
+featured: false
+tag: Solo project
+cardTag: Solo
+summary: A small web infrastructure with Docker Compose, built from my own Dockerfiles.
+description: >-
+  A WordPress site served over HTTPS from a virtual machine, split into three services, each in its own
+  container built from my own Dockerfiles and orchestrated with Docker Compose. An introduction to system
+  administration with Docker.
+cardTech: Docker · Docker Compose · NGINX · MariaDB
+stack:
+  - Docker
+  - Docker Compose
+  - NGINX
+  - WordPress
+  - WP-CLI
+  - php-fpm
+  - MariaDB
+  - OpenSSL
+  - Bash
+repo: https://github.com/yasin080/Inception
+howItWorks:
+  - >-
+    NGINX is the only entry point, on port 443 with TLS 1.2/1.3 and a self-signed certificate generated with
+    openssl at build time. PHP requests go to WordPress over FastCGI.
+  - >-
+    WordPress runs php-fpm with no web server of its own. It is installed and configured with WP-CLI on first
+    start, and the setup script is safe to run again.
+  - MariaDB stores the content; WordPress waits for it with `mysqladmin ping` before installing.
+  - >-
+    Images built from `debian:bookworm`. Passwords as Docker secrets, non-sensitive settings in `.env`, data
+    in named volumes on the host and containers on a private network.
+  - >-
+    Every service runs in the foreground as PID 1 and restarts automatically after a crash; no `tail -f` or
+    sleep loops.
+decisions:
+  - >-
+    `exec` at the end of each setup script, so the real service becomes PID 1 and receives the `docker stop`
+    signal correctly.
+  - >-
+    Docker secrets instead of environment variables for passwords: environment variables show up in `docker
+    inspect` and in logs, while secrets are mounted as files only in the containers that need them.
+  - >-
+    php-fpm separated from NGINX: each container does one job, and both share the WordPress files through a
+    volume.

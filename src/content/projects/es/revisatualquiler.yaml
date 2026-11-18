@@ -1,0 +1,84 @@
+# revisatualquiler.es (ES). Inline code goes between backticks.
+title: revisatualquiler.es
+order: 1
+featured: true
+tag: Proyecto individual · En producción
+tagNote: solo disponible en España
+cardTag: Individual · En producción
+summary: Revisa contratos de alquiler españoles según la ley.
+description: >-
+  El inquilino sube su contrato de alquiler en PDF y un LLM revisa cada cláusula según la normativa española
+  de vivienda, señala las nulas o desfavorables y calcula cuánto dinero podría reclamar. El análisis es
+  gratis; el informe completo, con todas las cláusulas explicadas, el desglose del importe reclamable y
+  mensajes de reclamación listos para enviar, es un pago único. Lo diseñé, desarrollé y lancé yo solo.
+cardTech: React · TypeScript · Supabase · Stripe
+stack:
+  - React 19
+  - TypeScript
+  - Vite
+  - Tailwind CSS
+  - Vercel serverless functions (Node.js, TypeScript)
+  - Supabase (PostgreSQL, RLS)
+  - OpenRouter
+  - Stripe Checkout + webhooks
+  - Resend
+  - '@react-pdf/renderer'
+  - Vercel Analytics
+live: https://www.revisatualquiler.es
+media:
+  card:
+    kind: image
+    src: media/rta-landing.webp
+    width: 1575
+    height: 865
+    alt: >-
+      Página de inicio de revisatualquiler.es: un contrato de ejemplo con cláusulas marcadas como nula,
+      desfavorable y correcta
+  detail:
+    kind: document
+    pdf: media/rta-informe-ejemplo.pdf
+    pages:
+      - src: media/rta-informe-p1.webp
+        alt: 'Página 1 del informe de ejemplo: 10 cláusulas nulas, 5 desfavorables y 26 correctas, hasta 1.150 € reclamables y de dónde sale ese importe'
+      - src: media/rta-informe-p2.webp
+        alt: 'Página 2 del informe de ejemplo: tabla de problemas encontrados, cláusula a cláusula, con su gravedad'
+      - src: media/rta-informe-p3.webp
+        alt: 'Página 3 del informe de ejemplo: dos cláusulas explicadas, con qué dice el contrato, qué dice la ley y qué puede hacer el inquilino'
+    note: 'Informe generado por revisatualquiler.es a partir de un contrato de ejemplo con datos ficticios.'
+    cta: Abrir el informe de ejemplo completo (PDF, 11 páginas)
+howItWorks:
+  - >-
+    El PDF llega al modelo a través de OpenRouter (plugin `file-parser`) junto con los textos legales
+    consolidados del BOE: la LAU, la Ley 12/2023 y los artículos aplicables del Código Civil. La respuesta es
+    un JSON en el que cada cláusula se etiqueta como nula, desfavorable o correcta, con el artículo en que se
+    basa.
+  - >-
+    El análisis tarda unos dos minutos. Mientras tanto, el inquilino responde hasta cinco preguntas opcionales
+    (código postal, honorarios de inmobiliaria, comunidad e IBI, reparaciones pagadas y email) que alimentan
+    el cálculo del importe reclamable.
+  - >-
+    El resultado gratis muestra cuántos problemas hay, sus títulos y el primero explicado. El informe completo
+    se paga con Stripe Checkout: un webhook con firma verificada marca el análisis como pagado, genera el PDF
+    con `@react-pdf/renderer` y lo envía por email con Resend.
+  - >-
+    SPA en React construida como una máquina de estados de vistas (landing, subida, espera, resultado,
+    informe) y una API serverless en Vercel con TypeScript.
+  - >-
+    Supabase (PostgreSQL) guarda los análisis con seguridad a nivel de fila activada y sin políticas públicas:
+    solo el servidor, con su clave secreta, puede leerlos.
+  - >-
+    Límites de uso en Postgres por IP, por destinatario de email y un tope global diario. Un middleware edge
+    en Vercel restringe el servicio a España sin bloquear a los rastreadores de los buscadores.
+decisions:
+  - >-
+    El modelo se eligió con un benchmark: pasé los mismos contratos por cinco modelos vía OpenRouter. El
+    ganador sacó un 9,5 con un coste de unos 0,04–0,08 € por análisis.
+  - >-
+    Los textos legales completos (unos 20.000 tokens) van en cada prompt, así que cada hallazgo cita el
+    artículo exacto, siempre como “art. X LAU”.
+  - >-
+    Prompt injection: el contenido del contrato se trata como datos, nunca como instrucciones. Lo probé con un
+    PDF trampa.
+  - >-
+    Si falla, bloquea: si no se pueden comprobar los límites de uso, la petición se rechaza, para que un error
+    de la base de datos no se convierta en una factura de IA sin límite.
